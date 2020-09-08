@@ -1,0 +1,83 @@
+Reminder: a bignum is never empty. However, we include A(0) because this corresponds to a base case for bignum+
+
+Analysis for bignum+:
+
+Let A(n) be the largest number of operations used in
+evaluating bignum+ applied to any two lists of length n
+
+A(0) = B
+A(n) <= C + A(n-1) for n > 0
+
+A(0) = B
+A(1) <= C + B
+A(2) <= C + C + B = 2C + B
+A(3) <= C + C + C + B = 3C + B
+
+A(n) <= Cn + B
+
+bignum+ runs in linear time because it only contains a single recursive call, and each time it runs, it operates on (n-1). Therefore:
+The function A(n) is in O(n->n)
+
+
+
+Analysis for bignum*:
+
+Let P(n) be the largest number of operations required to take get a partial product by multiplying each digit of bignum2 of length n by a single-digit bignum1.
+
+P(1) <= D + E + A(2) + F
+P(n) <= E + A(2) + P(n-1) for n > 1
+
+P(1) <= D + E + A(2) + F
+P(2) <= E + A(2) + P(1)
+P(3) <= E + A(2) + P(2)
+
+
+
+Let Q(n) be the largest number of operations required to take get a partial product by multiplying each digit of bignum1 of length n by a single-digit bignum2.
+
+Note: H = E + A(2) + F from the P(n) equation
+
+Q(1) <= D + H
+Q(n) <= G + H + A(n+1) + Q(n-1) for n > 1
+
+
+Q(1) <= D + H
+Q(2) <= G + H + A(3) + Q(1)
+Q(3) <= G + H + A(4) + Q(2)
+
+
+
+
+Note: runtime for bignum1=0, bignum2>0 is the same as runtime for bignum1>0, bignum2=0, and the same as the runtime for bignum1=0, bignum2=0
+
+Note: for M(n) use the version of P(n) where bignum1 has n digits because this one has the longer runtime.
+
+Z(n) is the runtime of the dezero helper procedure, which runs in linear time if n=0 or k=0 because it contains a single recursive call, such that its runtime depends on the length of its original input. Any time n>1 and k>1, dezero runs in constant time because necessarily both inputs are nonzero, so there will never be list-initial zeros in the dezero input. That is, dezero does not recur in these instances. Let Z represent this constant.
+
+Note: because P(k) and Q(n) are already written such that each contains the sum of the previous term (P(k-1) or Q(n-1)) and some constants, we cannot write a recurrence relation for M(n,k) without using these same constants (eg E, G, H from above). In the interest of not crowding our analysis with an excessive number of constants, we wrote the closed form of M(n,K) in terms of Q(n) and P(k).
+
+          Z(1) + P(1) = Z(1) + Q(1) if n=k=1
+M(n,k) <= Z(k) + P(k)               if n=1, k>1
+          Z(n) + Q(n)               if n>1, k=1
+          Q(n) + nP(k) + Z          if n>1, k>1
+
+M(1,1) = Z(1) + Q(1) = Z(1) + P(1)
+M(2,1) = Q(2)
+M(3,1) = Q(3)
+
+M(1,1) = Z(1) + P(1) = Z(1) + Q(1)
+M(1,2) = P(2)
+M(1,3) = P(3)
+
+M(2,2) <= Q(2) + P(2) + P(2) + Z
+M(3,2) <= Q(3) + P(2) + P(2) + P(2) + Z
+M(4,2) <= Q(4) + P(2) + P(2) + P(2) + P(2) + Z
+
+M(2,3) <= Q(2) + P(3) + P(3) + Z
+M(2,4) <= Q(2) + P(4) + P(4) + Z
+
+M(5,5) <= Q(5) + P(5) + P(5) + P(5) + P(5) + P(5) + Z
+
+
+bignum* runs in quadratic time because it contains P(k) n times. The partial product P(k) runs in linear time because carry-mult contains a single recursive call. Multiplying a linear function of n by n yields a quadratic. Therefore:
+The function M(n,k) is in O(n->n^2).
